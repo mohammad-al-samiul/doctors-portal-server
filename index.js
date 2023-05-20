@@ -31,11 +31,12 @@ function verifyJWT(req, res, next) {
     return res.status(401).send("unauthorized access");
   }
   const token = authHeader.split(" ")[1];
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, docoded) => {
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
     if (err) {
       return res.status(403).send({ message: "Forbidden" });
     }
     req.decoded = decoded;
+    next();
   });
 }
 
@@ -133,7 +134,7 @@ async function run() {
       res.send(result);
     });
 
-    app.put("/users/admin/:id", async (req, res) => {
+    app.put("/users/admin/:id",verifyJWT, async (req, res) => {
       const decodedEmail = req.decoded.email;
       const query = { email: decodedEmail };
       const user = await usersCollection.findOne(query);
