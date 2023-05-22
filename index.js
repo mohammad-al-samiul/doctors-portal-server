@@ -54,12 +54,12 @@ async function run() {
 
     app.get("/jwt", async (req, res) => {
       const email = req.query.email;
-      console.log(email);
+      //console.log(email);
       const query = {
         email: email,
       };
       const user = await usersCollection.findOne(query);
-      console.log(user);
+      //console.log(user);
       if (user) {
         const token = jwt.sign({ email }, process.env.ACCESS_TOKEN_SECRET, {
           expiresIn: "1d",
@@ -111,6 +111,13 @@ async function run() {
       res.send(users);
     });
 
+    app.get('/users/admin/:email', async (req,res) => {
+      const email = req.params.email;
+      const query = {email};
+      const user = await usersCollection.findOne(query);
+      res.send({isAdmin : user?.role ==='admin'});
+    })
+
     app.post("/users", async (req, res) => {
       const user = req.body;
       const result = await usersCollection.insertOne(user);
@@ -136,10 +143,10 @@ async function run() {
 
     app.put("/users/admin/:id",verifyJWT, async (req, res) => {
       const decodedEmail = req.decoded.email;
-      console.log(decodedEmail);
+      //console.log(decodedEmail);
       const query = { email: decodedEmail };
       const user = await usersCollection.findOne(query);
-      console.log(user);
+      //console.log(user);
 
       if (user?.role !== "admin") {
         return res.status(403).send({ message: "Forbidden Access" });
@@ -157,7 +164,7 @@ async function run() {
         updatedDoc,
         options
       );
-      console.log(result);
+      //console.log(result);
       res.send(result);
     });
   } finally {
