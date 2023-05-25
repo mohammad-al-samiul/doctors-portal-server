@@ -52,6 +52,8 @@ async function run() {
 
     const usersCollection = client.db("doctorsPortal").collection("users");
 
+    const doctorsCollection = client.db("doctorsPortal").collection("doctors");
+
     app.get("/jwt", async (req, res) => {
       const email = req.query.email;
       //console.log(email);
@@ -124,6 +126,12 @@ async function run() {
       res.send({isAdmin : user?.role ==='admin'});
     })
 
+    app.get('/doctors', async(req,res) => {
+      const query = {};
+      const doctors = await doctorsCollection.find(query).toArray();
+      res.send(doctors);
+    })
+
     app.post("/users", async (req, res) => {
       const user = req.body;
       const result = await usersCollection.insertOne(user);
@@ -146,6 +154,12 @@ async function run() {
       const result = await bookingsCollection.insertOne(booking);
       res.send(result);
     });
+
+    app.post('/doctors', async(req,res) => {
+      const doctor = req.body;
+      const result = await doctorsCollection.insertOne(doctor);
+      res.send(result);
+    })
 
     app.put("/users/admin/:id",verifyJWT, async (req, res) => {
       const decodedEmail = req.decoded.email;
