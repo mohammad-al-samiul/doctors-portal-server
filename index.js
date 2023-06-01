@@ -55,7 +55,7 @@ async function run() {
 
     const doctorsCollection = client.db("doctorsPortal").collection("doctors");
 
-    const verifyAdmin = async (req, res, next ) => {
+    const verifyAdmin = async (req, res, next) => {
       const decodedEmail = req.decoded.email;
       //console.log(decodedEmail);
       const query = { email: decodedEmail };
@@ -66,7 +66,7 @@ async function run() {
         return res.status(403).send({ message: "Forbidden Access" });
       }
       next();
-    }
+    };
 
     app.get("/jwt", async (req, res) => {
       const email = req.query.email;
@@ -80,7 +80,7 @@ async function run() {
         const token = jwt.sign({ email }, process.env.ACCESS_TOKEN_SECRET, {
           expiresIn: "1d",
         });
-      
+
         return res.send({ accessToken: token });
       }
       res.status(403).send({ accessToken: "invalid token" });
@@ -131,6 +131,13 @@ async function run() {
       res.send(result);
     });
 
+    app.get('/bookings/:id', async(req, res) => {
+      const id = req.params.id;
+      const query = {_id : new ObjectId(id)};
+      const booking = await bookingsCollection.findOne(query);
+      res.send(booking);
+    })
+
     app.get("/users", async (req, res) => {
       const query = {};
       const users = await usersCollection.find(query).toArray();
@@ -144,7 +151,7 @@ async function run() {
       res.send({ isAdmin: user?.role === "admin" });
     });
 
-    app.get("/doctors", verifyJWT,verifyAdmin,  async (req, res) => {
+    app.get("/doctors", verifyJWT, verifyAdmin, async (req, res) => {
       const query = {};
       const doctors = await doctorsCollection.find(query).toArray();
       res.send(doctors);
@@ -173,14 +180,13 @@ async function run() {
       res.send(result);
     });
 
-    app.post("/doctors", verifyJWT,verifyAdmin, async (req, res) => {
+    app.post("/doctors", verifyJWT, verifyAdmin, async (req, res) => {
       const doctor = req.body;
       const result = await doctorsCollection.insertOne(doctor);
       res.send(result);
     });
 
-    app.put("/users/admin/:id", verifyJWT,verifyAdmin, async (req, res) => {
-     
+    app.put("/users/admin/:id", verifyJWT, verifyAdmin, async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
       const options = { upsert: true };
@@ -198,7 +204,23 @@ async function run() {
       res.send(result);
     });
 
-    app.delete("/doctors/:id",verifyJWT,verifyAdmin, async (req, res) => {
+    // app.get("/addPrice", async (req, res) => {
+    //   const filter = {};
+    //   const options = { upsert: true };
+    //   const updateDoc = {
+    //     $set: {
+    //       price: 99,
+    //     },
+    //   };
+    //   const result = await appointmentCollectionOptions.updateMany(
+    //     filter,
+    //     updateDoc,
+    //     options
+    //   );
+    //   res.send(result);
+    // });
+
+    app.delete("/doctors/:id", verifyJWT, verifyAdmin, async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
       const result = await doctorsCollection.deleteOne(filter);
