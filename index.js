@@ -240,6 +240,8 @@ async function run() {
       res.send(result);
     });
 
+
+
     // app.get("/addPrice", async (req, res) => {
     //   const filter = {};
     //   const options = { upsert: true };
@@ -255,6 +257,15 @@ async function run() {
     //   );
     //   res.send(result);
     // });
+
+    app.delete("/user/:id", verifyJWT, verifyAdmin, async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const result = await usersCollection.deleteOne(filter);
+      res.send(result);
+    });
+
+
 
     app.delete("/doctors/:id", verifyJWT, verifyAdmin, async (req, res) => {
       const id = req.params.id;
