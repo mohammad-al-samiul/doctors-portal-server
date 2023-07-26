@@ -273,6 +273,10 @@ async function run() {
       const result = await doctorsCollection.deleteOne(filter);
       res.send(result);
     });
+
+    app.get('/',async(req,res) => {
+      res.send(`Server is Running on ${Port}`)
+    })
   } finally {
   }
 }
