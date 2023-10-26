@@ -10,7 +10,16 @@ const Port = process.env.PORT || 5001;
 const app = express();
 
 app.use(express.json());
-app.use(cors());
+
+//app.use(cors());
+const corsConfig = {
+  origin: '',
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Origin', 'X-Requested-With', 'Accept', 'x-client-key', 'x-client-token', 'x-client-secret', 'Authorization'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE']
+}
+app.use(cors(corsConfig))
+app.options("", cors(corsConfig))
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.rqwof3p.mongodb.net/?retryWrites=true&w=majority`;
 // console.log(uri);
@@ -139,7 +148,7 @@ async function run() {
       const query = { _id: new ObjectId(id) };
       const booking = await bookingsCollection.findOne(query);
       res.send(booking);
-  })
+    })
 
     app.get("/users", async (req, res) => {
       const query = {};
@@ -195,31 +204,31 @@ async function run() {
       const amount = price * 100;
 
       const paymentIntent = await stripe.paymentIntents.create({
-          currency: 'usd',
-          amount: amount,
-          "payment_method_types": [
-              "card"
-          ]
+        currency: 'usd',
+        amount: amount,
+        "payment_method_types": [
+          "card"
+        ]
       });
       res.send({
-          clientSecret: paymentIntent.client_secret,
+        clientSecret: paymentIntent.client_secret,
       });
-  });
+    });
 
-  app.post('/payments', async(req,res) => {
-    const payment = req.body;
-    const result = await paymentsCollection.insertOne(payment);
-    const id = payment.bookingId;
-    const filter = {_id : new ObjectId(id)}
-    const updateDoc = {
-      $set : {
-        paid :true,
-        transactionId : payment.transactionId
+    app.post('/payments', async (req, res) => {
+      const payment = req.body;
+      const result = await paymentsCollection.insertOne(payment);
+      const id = payment.bookingId;
+      const filter = { _id: new ObjectId(id) }
+      const updateDoc = {
+        $set: {
+          paid: true,
+          transactionId: payment.transactionId
+        }
       }
-    }
-    const updatedResult = await bookingsCollection.updateOne(filter, updateDoc)
-    res.send(result);
-  })
+      const updatedResult = await bookingsCollection.updateOne(filter, updateDoc)
+      res.send(result);
+    })
 
 
     app.put("/users/admin/:id", verifyJWT, verifyAdmin, async (req, res) => {
@@ -274,7 +283,7 @@ async function run() {
       res.send(result);
     });
 
-    app.get('/',async(req,res) => {
+    app.get('/', async (req, res) => {
       res.send(`Server is Running on ${Port}`)
     })
   } finally {
