@@ -13,10 +13,11 @@ app.use(express.json());
 
 //app.use(cors());
 const corsConfig = {
-  origin: '',
+  origin: '*',
   credentials: true,
   allowedHeaders: ['Content-Type', 'Origin', 'X-Requested-With', 'Accept', 'x-client-key', 'x-client-token', 'x-client-secret', 'Authorization'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE']
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  optionSuccessStatus:200,
 }
 app.use(cors(corsConfig))
 app.options("", cors(corsConfig))
